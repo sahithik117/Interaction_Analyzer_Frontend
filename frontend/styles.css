@@ -1904,3 +1904,645 @@ body {
     width: 100%;
   }
 }
+
+/* =======================================================================
+   Science Experience Chooser
+   ======================================================================= */
+
+.experience-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  overflow-y: auto;
+  padding: 1.25rem;
+  background: rgba(2, 8, 17, 0.88);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.experience-overlay[hidden] {
+  display: none;
+}
+
+.experience-dialog-card {
+  position: relative;
+  width: min(100%, 850px);
+  max-height: calc(100vh - 2.5rem);
+  overflow-y: auto;
+  padding: 1.5rem;
+  border: 1px solid #24446a;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(145deg, #10243b 0%, #091526 72%);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+}
+
+.experience-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: #07111f;
+  color: var(--text-low);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.experience-close:hover,
+.experience-close:focus-visible {
+  color: var(--text-high);
+  border-color: var(--border-active);
+}
+
+.experience-heading {
+  max-width: 650px;
+  margin: 0 auto 1.1rem;
+  padding: 0 2.25rem;
+  text-align: center;
+}
+
+.experience-eyebrow,
+.experience-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid rgba(20, 184, 166, 0.35);
+  border-radius: 999px;
+  background: rgba(13, 148, 136, 0.12);
+  color: #43d5c0;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 0.35rem 0.75rem;
+  text-transform: uppercase;
+}
+
+.experience-heading h1 {
+  margin: 0.8rem 0 0.5rem;
+  color: var(--text-high);
+  font-size: clamp(1.55rem, 3vw, 2rem);
+  letter-spacing: -0.035em;
+  line-height: 1.2;
+}
+
+.experience-heading p {
+  color: var(--text-medium);
+  font-size: 0.88rem;
+}
+
+.experience-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.1rem;
+}
+
+.experience-option {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid #24446a;
+  border-radius: var(--radius-md);
+  background: rgba(7, 17, 31, 0.72);
+}
+
+.experience-option-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.7rem;
+}
+
+.experience-icon {
+  display: grid;
+  width: 2.8rem;
+  height: 2.8rem;
+  place-items: center;
+  border: 1px solid rgba(16, 185, 129, 0.38);
+  border-radius: var(--radius-md);
+  background: rgba(5, 150, 105, 0.12);
+  color: #34d399;
+}
+
+.experience-icon svg {
+  width: 1.6rem;
+  height: 1.6rem;
+}
+
+.experience-option h2 {
+  margin-bottom: 0.45rem;
+  color: var(--text-high);
+  font-size: 1.08rem;
+}
+
+.experience-option > p {
+  min-height: 3.5rem;
+  color: var(--text-low);
+  font-size: 0.78rem;
+}
+
+.experience-option ul {
+  display: grid;
+  gap: 0.42rem;
+  margin: 0.6rem 0 0.8rem;
+  padding-left: 1rem;
+  color: var(--text-medium);
+  font-size: 0.76rem;
+}
+
+.experience-option li::marker {
+  color: #34d399;
+}
+
+.experience-option li strong {
+  color: var(--text-high);
+}
+
+.specialist-option .experience-icon {
+  border-color: rgba(14, 165, 233, 0.4);
+  background: rgba(2, 132, 199, 0.12);
+  color: #38bdf8;
+}
+
+.specialist-option .experience-badge {
+  border-color: rgba(14, 165, 233, 0.32);
+  background: rgba(2, 132, 199, 0.12);
+  color: #38bdf8;
+}
+
+.specialist-option li::marker {
+  color: #38bdf8;
+}
+
+.experience-enter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  width: 100%;
+  min-height: 2.4rem;
+  margin-top: auto;
+  border: 0;
+  border-radius: var(--radius-sm);
+  color: white;
+  font: 700 0.85rem var(--font-sans);
+  cursor: pointer;
+  transition: filter var(--transition-fast), transform var(--transition-fast);
+}
+
+.experience-enter:hover {
+  filter: brightness(1.12);
+  transform: translateY(-1px);
+}
+
+.beginner-enter {
+  background: linear-gradient(100deg, #059669, #10b981);
+}
+
+.specialist-enter {
+  background: linear-gradient(100deg, #0284c7, #0891b2);
+}
+
+.experience-new-tab {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.45rem;
+  padding: 0.45rem;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-xs);
+  color: var(--text-low);
+  font: 600 0.68rem var(--font-mono);
+  text-decoration: none;
+}
+
+.experience-new-tab:hover {
+  color: var(--text-high);
+  border-color: var(--border-active);
+}
+
+.experience-dialog-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.25rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+.experience-dialog-footer button {
+  flex: 0 0 auto;
+  border: 0;
+  background: none;
+  color: var(--text-medium);
+  font: 600 0.7rem var(--font-sans);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.experience-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  color: var(--text-medium);
+  font: 600 0.72rem var(--font-sans);
+  cursor: pointer;
+}
+
+.experience-switch:hover {
+  border-color: var(--accent-cyan);
+  color: var(--text-high);
+}
+
+.experience-switch-label {
+  color: var(--text-muted);
+}
+
+body[data-experience="beginner"] .hero-eyebrow,
+body[data-experience="beginner"] .panel-badge-pill,
+body[data-experience="beginner"] .info-bullet {
+  color: #34d399;
+}
+
+body[data-experience="beginner"] .panel-badge-pill {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+@media (max-width: 768px) {
+  .nav-indicators {
+    display: flex;
+  }
+
+  .nav-indicators > .nav-spec-badge,
+  .nav-indicators > .status-pill {
+    display: none;
+  }
+
+  .experience-dialog-card {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .experience-overlay {
+    align-items: start;
+    padding: 0.5rem;
+  }
+
+  .experience-dialog-card {
+    max-height: calc(100vh - 1rem);
+    padding: 1.25rem;
+  }
+
+  .experience-heading {
+    padding: 0 1.5rem;
+  }
+
+  .experience-heading h1 {
+    font-size: 1.5rem;
+  }
+
+  .experience-options {
+    grid-template-columns: 1fr;
+  }
+
+  .experience-option > p {
+    min-height: 0;
+  }
+
+  .experience-dialog-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+/* =======================================================================
+   Field Guide and Molecular Structure Viewer
+   ======================================================================= */
+
+.field-guide-panel {
+  margin: 0 0 1.5rem;
+  padding: 1.1rem 1.15rem 1.2rem;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  background: rgba(5, 15, 29, 0.62);
+}
+
+.field-guide-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.9rem;
+}
+
+.field-guide-heading .hero-eyebrow {
+  margin-bottom: 0.2rem;
+}
+
+.field-guide-heading h2 {
+  color: var(--text-high);
+  font-size: 1.05rem;
+  font-weight: 750;
+}
+
+.field-guide-mode {
+  flex: 0 0 auto;
+  padding: 0.25rem 0.55rem;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.1);
+  color: #34d399;
+  font: 700 0.62rem var(--font-mono);
+  text-transform: uppercase;
+}
+
+body[data-experience="specialist"] .field-guide-mode {
+  border-color: rgba(6, 182, 212, 0.35);
+  background: var(--accent-cyan-bg);
+  color: var(--accent-cyan-bright);
+}
+
+.field-guide-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.field-guide-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 0.8rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--bg-deep);
+}
+
+.field-guide-card h3 {
+  margin: 0.3rem 0;
+  color: var(--text-high);
+  font-size: 0.84rem;
+  text-transform: capitalize;
+}
+
+.field-guide-card p {
+  flex: 1;
+  color: var(--text-low);
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+.field-guide-number {
+  color: var(--text-muted);
+  font: 700 0.57rem var(--font-mono);
+  letter-spacing: 0.06em;
+}
+
+.field-guide-example {
+  margin-top: 0.65rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border-subtle);
+  color: var(--text-medium);
+  font: 600 0.62rem var(--font-mono);
+}
+
+.antibody-guide {
+  border-top: 2px solid #ef4444;
+}
+
+.antigen-guide {
+  border-top: 2px solid #fbbf24;
+}
+
+.pairing-guide {
+  border-top: 2px solid #10b981;
+}
+
+.molecule-viewer-card {
+  overflow: hidden;
+}
+
+.molecule-viewer-card .card-title-bar {
+  align-items: center;
+}
+
+#molecule-viewer-status {
+  max-width: 55%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.molecule-viewer-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: -0.15rem 0 0.8rem;
+  flex-wrap: wrap;
+}
+
+.molecule-style-controls,
+.molecule-action-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.molecule-control-label {
+  margin-right: 0.25rem;
+  color: var(--text-muted);
+  font: 700 0.65rem var(--font-mono);
+  text-transform: uppercase;
+}
+
+.molecule-style-button,
+.molecule-action-button {
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-xs);
+  background: var(--bg-deep);
+  color: var(--text-low);
+  font: 600 0.65rem var(--font-mono);
+  cursor: pointer;
+}
+
+.molecule-style-button:hover,
+.molecule-action-button:hover,
+.molecule-style-button.active {
+  border-color: var(--accent-cyan);
+  background: var(--accent-cyan-bg);
+  color: var(--accent-cyan-bright);
+}
+
+.molecule-viewer-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 190px;
+  gap: 0.8rem;
+  min-width: 0;
+}
+
+.molecule-viewer-canvas {
+  position: relative;
+  min-width: 0;
+  height: 390px;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: #050d18;
+}
+
+.molecule-viewer-canvas canvas {
+  display: block;
+}
+
+.molecule-viewer-placeholder {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 1rem;
+  color: var(--text-muted);
+  text-align: center;
+  pointer-events: none;
+}
+
+.molecule-viewer-placeholder strong {
+  color: var(--text-medium);
+  font-size: 0.85rem;
+}
+
+.molecule-viewer-placeholder span:last-child {
+  font-size: 0.7rem;
+}
+
+.viewer-placeholder-icon {
+  color: var(--accent-cyan);
+  font-size: 2rem;
+}
+
+.molecule-viewer-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.8rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--bg-deep);
+}
+
+.molecule-viewer-legend h4 {
+  color: var(--text-high);
+  font-size: 0.75rem;
+}
+
+.molecule-viewer-legend > div {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--text-low);
+  font-size: 0.65rem;
+}
+
+.molecule-legend-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  flex: 0 0 auto;
+  border-radius: 50%;
+}
+
+.antibody-dot {
+  background: #ef4444;
+}
+
+.antigen-dot {
+  background: #fbbf24;
+}
+
+.molecule-viewer-legend p {
+  margin-top: 0.3rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  font: 0.62rem/1.5 var(--font-mono);
+  overflow-wrap: anywhere;
+}
+
+.molecule-download-link {
+  margin-top: auto;
+  color: var(--accent-cyan-bright);
+  font-size: 0.65rem;
+  text-decoration: none;
+}
+
+.molecule-download-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .field-guide-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .field-guide-card {
+    min-height: auto;
+  }
+
+  .molecule-viewer-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .molecule-viewer-legend {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .molecule-viewer-legend h4,
+  .molecule-viewer-legend p,
+  .molecule-download-link {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 480px) {
+  .field-guide-panel {
+    padding: 0.85rem;
+  }
+
+  .field-guide-heading {
+    align-items: flex-start;
+  }
+
+  .field-guide-heading h2 {
+    font-size: 0.92rem;
+  }
+
+  .molecule-viewer-canvas {
+    height: 300px;
+  }
+
+  #molecule-viewer-status {
+    max-width: 45%;
+    font-size: 0.56rem;
+  }
+}

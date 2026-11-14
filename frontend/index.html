@@ -11,6 +11,68 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <section id="experience-dialog" class="experience-overlay" role="dialog" aria-modal="true" aria-labelledby="experience-title" aria-describedby="experience-description">
+    <div class="experience-dialog-card">
+      <button id="experience-close" class="experience-close" type="button" aria-label="Continue with the current view">&times;</button>
+      <div class="experience-heading">
+        <span class="experience-eyebrow"><span aria-hidden="true">✧</span> Select your science experience</span>
+        <h1 id="experience-title">Choose How You Want to Explore</h1>
+        <p id="experience-description">Pick Beginner Friendly for plain-English explanations and visual analogies, or Specialist for formal structural biology terms. You can switch between them anytime.</p>
+      </div>
+
+      <div class="experience-options">
+        <article class="experience-option beginner-option">
+          <div class="experience-option-top">
+            <span class="experience-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m2 8 10-5 10 5-10 5L2 8Z"></path>
+                <path d="M6 10v5c3.5 3 8.5 3 12 0v-5"></path>
+              </svg>
+            </span>
+            <span class="experience-badge">Beginner Friendly</span>
+          </div>
+          <h2>Beginner Mode</h2>
+          <p>Simplified, everyday English without confusing scientific jargon. Helpful for students, newcomers, or anyone who wants clear explanations.</p>
+          <ul>
+            <li><strong>Antibody:</strong> The body's defense guard</li>
+            <li><strong>Antigen:</strong> The target the antibody recognizes</li>
+            <li><strong>Pairing:</strong> A likely match or a mismatch</li>
+            <li><strong>Interaction map:</strong> A picture of molecular touch points</li>
+          </ul>
+          <button class="experience-enter beginner-enter" type="button" data-experience="beginner">Enter Beginner Mode <span aria-hidden="true">→</span></button>
+          <a class="experience-new-tab" href="?mode=beginner" target="_blank" rel="noopener noreferrer">↗ Open in a new tab</a>
+        </article>
+
+        <article class="experience-option specialist-option">
+          <div class="experience-option-top">
+            <span class="experience-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 3h6"></path><path d="M10 3v5l-4.5 8A3 3 0 0 0 8.1 20h7.8a3 3 0 0 0 2.6-4l-4.5-8V3"></path>
+                <path d="M8 15h8"></path><circle cx="15.5" cy="12" r="1"></circle><path d="M4 23h16"></path>
+              </svg>
+            </span>
+            <span class="experience-badge">Specialist Mode</span>
+          </div>
+          <h2>Specialist / Researcher</h2>
+          <p>Formal biophysical terminology and structural biology standards, with technical details preserved.</p>
+          <ul>
+            <li><strong>Macromolecules:</strong> Heavy/Light Fv + antigen chains</li>
+            <li><strong>Biophysical metric:</strong> ≤ 5.0 Å contact interface</li>
+            <li><strong>Classification:</strong> Cognate Class 1 vs. mismatched Class 0</li>
+            <li><strong>Model input:</strong> [20, 21, 1] tensor CNN inference</li>
+          </ul>
+          <button class="experience-enter specialist-enter" type="button" data-experience="specialist">Enter Specialist Mode <span aria-hidden="true">→</span></button>
+          <a class="experience-new-tab" href="?mode=specialist" target="_blank" rel="noopener noreferrer">↗ Open in a new tab</a>
+        </article>
+      </div>
+
+      <div class="experience-dialog-footer">
+        <span>Both modes use the same analysis, 3D structure viewer, and interaction matrix; only the explanations change.</span>
+        <button id="experience-continue" type="button">Continue with current view <span aria-hidden="true">→</span></button>
+      </div>
+    </div>
+  </section>
+
   <div class="app-layout">
     <!-- Top Navigation Header -->
     <header class="app-navbar" role="banner">
@@ -36,6 +98,11 @@
         </div>
 
         <div class="nav-indicators">
+          <button id="experience-switch" class="experience-switch" type="button" aria-haspopup="dialog">
+            <span class="experience-switch-label">View:</span>
+            <span id="experience-current">Specialist</span>
+            <span aria-hidden="true">⌄</span>
+          </button>
           <div class="nav-spec-badge">
             <span class="spec-dot"></span>
             <span>CNN / Structural Analysis</span>
@@ -58,20 +125,50 @@
       <section class="analysis-hero-card" aria-labelledby="hero-heading">
         <div class="hero-header">
           <div class="hero-title-group">
-            <span class="hero-eyebrow">Structural Biology Inference</span>
+            <span class="hero-eyebrow" data-beginner="Protein Match Explorer" data-specialist="Structural Biology Inference">Structural Biology Inference</span>
             <h1 id="hero-heading" class="hero-title">Structural Interaction Analysis</h1>
-            <p class="hero-description">
+            <p class="hero-description" data-beginner="Enter a protein structure code to explore how an antibody meets its target. The app maps their points of contact and estimates whether the pairing resembles a matched pair." data-specialist="Analyze antibody–antigen interfaces from experimentally resolved protein structures. Resolves PDB coordinates, identifies antibody chains, maps IMGT CDR loops, calculates 5 Å intermolecular contacts, and computes cognate-pair CNN classification.">
               Analyze antibody–antigen interfaces from experimentally resolved protein structures. Resolves PDB coordinates, identifies antibody chains, maps IMGT CDR loops, calculates 5&nbsp;&Aring; intermolecular contacts, and computes cognate-pair CNN classification.
             </p>
           </div>
         </div>
 
+        <section class="field-guide-panel" aria-labelledby="field-guide-title">
+          <div class="field-guide-heading">
+            <div>
+              <span class="hero-eyebrow" data-beginner="A quick guide" data-specialist="Structural Biology Guide">A quick guide</span>
+              <h2 id="field-guide-title" data-beginner="Understanding Antibodies &amp; Antigens" data-specialist="Antibody–Antigen Pairing">Understanding Antibodies &amp; Antigens</h2>
+            </div>
+            <span class="field-guide-mode" data-beginner="Beginner Friendly" data-specialist="Specialist View">Beginner Friendly</span>
+          </div>
+          <div class="field-guide-cards">
+            <article class="field-guide-card antibody-guide">
+              <span class="field-guide-number">01 / ANTIBODY</span>
+              <h3 data-beginner="The antibody" data-specialist="Antibody (Fv)">The antibody</h3>
+              <p data-beginner="Think of it as the body's defense guard. Its flexible tips can recognize a target." data-specialist="The variable fragment contains the antigen-recognition regions that form the binding interface.">Think of it as the body's defense guard. Its flexible tips can recognize a target.</p>
+              <span class="field-guide-example" data-beginner="Defense guard • shown in red" data-specialist="Heavy + light variable regions">Defense guard • shown in red</span>
+            </article>
+            <article class="field-guide-card antigen-guide">
+              <span class="field-guide-number">02 / TARGET</span>
+              <h3 data-beginner="The antigen" data-specialist="Antigen / epitope">The antigen</h3>
+              <p data-beginner="This is the protein target the antibody may recognize, such as a part of a virus or bacterium." data-specialist="The antigen presents an epitope at the molecular interface with the antibody.">This is the protein target the antibody may recognize, such as a part of a virus or bacterium.</p>
+              <span class="field-guide-example" data-beginner="Target • shown in gold" data-specialist="Target epitope region">Target • shown in gold</span>
+            </article>
+            <article class="field-guide-card pairing-guide">
+              <span class="field-guide-number">03 / PAIRING</span>
+              <h3 data-beginner="A matched pair" data-specialist="Cognate pairing">A matched pair</h3>
+              <p data-beginner="The analysis compares structural patterns to estimate whether the antibody and target resemble a known matching pair." data-specialist="The CNN classifies the interface representation as cognate or mismatched under the Test-3 paradigm.">The analysis compares structural patterns to estimate whether the antibody and target resemble a known matching pair.</p>
+              <span class="field-guide-example" data-beginner="Model estimate • not a lab measurement" data-specialist="Binary classification • not affinity prediction">Model estimate • not a lab measurement</span>
+            </article>
+          </div>
+        </section>
+
         <!-- Search Bar and Action Controls -->
         <form id="analysis-form" class="analysis-controller" onsubmit="return false;">
           <div class="search-field-container">
             <label for="pdb-input" class="search-label">
-              <span>PROTEIN DATA BANK IDENTIFIER</span>
-              <span class="search-format-hint">4-character PDB accession code</span>
+              <span data-beginner="STRUCTURE CODE" data-specialist="PROTEIN DATA BANK IDENTIFIER">PROTEIN DATA BANK IDENTIFIER</span>
+              <span class="search-format-hint" data-beginner="Enter a 4-character code (for example, 1EJO)" data-specialist="4-character PDB accession code">4-character PDB accession code</span>
             </label>
             <div class="search-input-wrapper">
               <div class="input-icon-prefix" aria-hidden="true">
@@ -96,7 +193,7 @@
                   <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                     <polygon points="5 3 19 12 5 21 5 3"></polygon>
                   </svg>
-                  <span class="btn-text">Analyze Structure</span>
+                  <span class="btn-text" data-beginner="Explore This Structure" data-specialist="Analyze Structure">Analyze Structure</span>
                 </span>
                 <span class="btn-loader-spinner" aria-hidden="true"></span>
               </button>
@@ -136,8 +233,8 @@
             <span class="pulse-indicator"></span>
             <span>Ready for Structural Analysis</span>
           </div>
-          <h2 class="panel-heading">Computational Structural Pipeline</h2>
-          <p class="panel-subheading">
+          <h2 class="panel-heading" data-beginner="How the protein match is explored" data-specialist="Computational Structural Pipeline">Computational Structural Pipeline</h2>
+          <p class="panel-subheading" data-beginner="The app reads the protein shape, finds the antibody and its target, then maps where their building blocks touch." data-specialist="The automated pipeline transforms raw atomic 3D coordinates into a topological intramolecular contact representation for deep CNN inference.">
             The automated pipeline transforms raw atomic 3D coordinates into a topological intramolecular contact representation for deep CNN inference.
           </p>
         </div>
@@ -150,8 +247,8 @@
                 <path d="M4 7V4h16v3M9 20h6M12 4v16"/>
               </svg>
             </div>
-            <h3 class="node-title">PDB Structure</h3>
-            <p class="node-text">Resolves 3D atomic coordinates from local cache or RCSB PDB coordinate archives.</p>
+            <h3 class="node-title" data-beginner="Find the protein shape" data-specialist="PDB Structure">PDB Structure</h3>
+            <p class="node-text" data-beginner="Loads the experimentally measured 3D shape of the protein." data-specialist="Resolves 3D atomic coordinates from local cache or RCSB PDB coordinate archives.">Resolves 3D atomic coordinates from local cache or RCSB PDB coordinate archives.</p>
           </div>
 
           <div class="pipeline-node-connector" aria-hidden="true">&rarr;</div>
@@ -165,8 +262,8 @@
                 <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
               </svg>
             </div>
-            <h3 class="node-title">Chain Identification</h3>
-            <p class="node-text">Identifies antibody Heavy (H), Light (L), and protein Antigen (Ag) polymer chains.</p>
+            <h3 class="node-title" data-beginner="Identify the protein parts" data-specialist="Chain Identification">Chain Identification</h3>
+            <p class="node-text" data-beginner="Separates the antibody from the target protein." data-specialist="Identifies antibody Heavy (H), Light (L), and protein Antigen (Ag) polymer chains.">Identifies antibody Heavy (H), Light (L), and protein Antigen (Ag) polymer chains.</p>
           </div>
 
           <div class="pipeline-node-connector" aria-hidden="true">&rarr;</div>
@@ -178,8 +275,8 @@
                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
               </svg>
             </div>
-            <h3 class="node-title">CDR Mapping</h3>
-            <p class="node-text">Delineates canonical IMGT Complementarity Determining Regions (H1–H3, L1–L3).</p>
+            <h3 class="node-title" data-beginner="Find the antibody's tips" data-specialist="CDR Mapping">CDR Mapping</h3>
+            <p class="node-text" data-beginner="Locates the antibody regions that do most of the recognizing." data-specialist="Delineates canonical IMGT Complementarity Determining Regions (H1–H3, L1–L3).">Delineates canonical IMGT Complementarity Determining Regions (H1–H3, L1–L3).</p>
           </div>
 
           <div class="pipeline-node-connector" aria-hidden="true">&rarr;</div>
@@ -193,8 +290,8 @@
                 <line x1="12" y1="16" x2="16" y2="16"></line>
               </svg>
             </div>
-            <h3 class="node-title">5 &Aring; Contact Graph</h3>
-            <p class="node-text">Calculates intermolecular heavy-atom distances (&le; 5.0 &Aring;) to extract interface residues.</p>
+            <h3 class="node-title" data-beginner="Measure touch points" data-specialist="5 Å Contact Graph">5 &Aring; Contact Graph</h3>
+            <p class="node-text" data-beginner="Finds which parts of the antibody and target are close enough to touch." data-specialist="Calculates intermolecular heavy-atom distances (≤ 5.0 Å) to extract interface residues.">Calculates intermolecular heavy-atom distances (&le; 5.0 &Aring;) to extract interface residues.</p>
           </div>
 
           <div class="pipeline-node-connector" aria-hidden="true">&rarr;</div>
@@ -210,8 +307,8 @@
                 <line x1="15" y1="3" x2="15" y2="21"></line>
               </svg>
             </div>
-            <h3 class="node-title">20&times;20 Matrix</h3>
-            <p class="node-text">Builds normalized intramolecular contact frequency representation in standard amino-acid order.</p>
+            <h3 class="node-title" data-beginner="Build an interaction map" data-specialist="20×20 Matrix">20&times;20 Matrix</h3>
+            <p class="node-text" data-beginner="Turns the touch points into a color-coded map of protein building blocks." data-specialist="Builds a normalized intramolecular contact frequency representation in standard amino-acid order.">Builds normalized intramolecular contact frequency representation in standard amino-acid order.</p>
           </div>
 
           <div class="pipeline-node-connector" aria-hidden="true">&rarr;</div>
@@ -223,8 +320,8 @@
                 <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
               </svg>
             </div>
-            <h3 class="node-title">CNN Classification</h3>
-            <p class="node-text">Processes 20&times;21 tensor via trained CNN (199,681 parameters) to score cognate pairing.</p>
+            <h3 class="node-title" data-beginner="Estimate the pairing" data-specialist="CNN Classification">CNN Classification</h3>
+            <p class="node-text" data-beginner="A trained computer model compares the map with patterns it learned." data-specialist="Processes a 20×21 tensor via a trained CNN (199,681 parameters) to score cognate pairing.">Processes 20&times;21 tensor via trained CNN (199,681 parameters) to score cognate pairing.</p>
           </div>
         </div>
 
@@ -236,10 +333,6 @@
           <div class="info-tag">
             <span class="info-bullet">&bull;</span>
             <span><strong>Input Support:</strong> Standard PDB format with antibody Heavy/Light chains and protein antigen chains.</span>
-          </div>
-          <div class="info-tag">
-            <span class="info-bullet">&bull;</span>
-            <span><strong>10k Training Workflow:</strong> The project targets a 10,000-sample dataset pool before split assignment and leakage-safe validation.</span>
           </div>
         </div>
       </section>
@@ -337,8 +430,9 @@
         <!-- Dashboard Section Quick Nav -->
         <nav class="dashboard-section-nav" aria-label="Dashboard sections">
           <a href="#section-overview" class="dash-nav-pill active">Overview</a>
-          <a href="#section-structure" class="dash-nav-pill">Structure &amp; CDRs</a>
-          <a href="#section-matrix" class="dash-nav-pill">Interaction Matrix</a>
+          <a href="#section-structure" class="dash-nav-pill" data-beginner="Protein Parts" data-specialist="Structure &amp; CDRs">Structure &amp; CDRs</a>
+          <a href="#section-molecule" class="dash-nav-pill">3D Molecule Viewer</a>
+          <a href="#section-matrix" class="dash-nav-pill" data-beginner="Interaction Map" data-specialist="Interaction Matrix">Interaction Matrix</a>
           <a href="#section-pipeline" class="dash-nav-pill">Pipeline Timeline</a>
           <a href="#section-model" class="dash-nav-pill">CNN Architecture</a>
           <a href="#section-limitations" class="dash-nav-pill">Limitations</a>
@@ -348,18 +442,18 @@
         <section id="section-overview" class="result-card primary-classification-card">
           <div class="card-eyebrow-row">
             <div class="structure-accession-meta">
-              <span class="meta-tag-label">STRUCTURE ANALYZED</span>
+              <span class="meta-tag-label" data-beginner="Protein structure" data-specialist="STRUCTURE ANALYZED">STRUCTURE ANALYZED</span>
               <span id="res-pdb-id" class="pdb-accession-display">----</span>
             </div>
             <div class="task-paradigm-pill">
-              <span>Task: Test-3 Cognate-vs-Mismatched Pairing</span>
+              <span data-beginner="Question: Do these proteins look like a matched pair?" data-specialist="Task: Test-3 Cognate-vs-Mismatched Pairing">Task: Test-3 Cognate-vs-Mismatched Pairing</span>
             </div>
           </div>
 
           <div class="classification-core-grid">
             <!-- Left: Predicted Class & Probability Gauge -->
             <div class="classification-primary-block">
-              <div class="classification-label-sub">MODEL CLASSIFICATION</div>
+              <div class="classification-label-sub" data-beginner="PAIRING ESTIMATE" data-specialist="MODEL CLASSIFICATION">MODEL CLASSIFICATION</div>
               <div id="res-prediction-badge" class="prediction-classification-badge">
                 ----
               </div>
@@ -367,7 +461,7 @@
               <!-- Metric Probability Display -->
               <div class="probability-metric-group">
                 <div class="metric-top-row">
-                  <span class="metric-descriptor">Model probability</span>
+                  <span class="metric-descriptor" data-beginner="Model score" data-specialist="Model probability">Model probability</span>
                   <span id="res-probability" class="metric-highlight-value">--.--%</span>
                 </div>
                 <!-- Clean Probability Gauge Bar -->
@@ -378,9 +472,9 @@
                   <div id="res-probability-fill" class="gauge-fill-bar" style="width: 50%;"></div>
                 </div>
                 <div class="gauge-scale-legend">
-                  <span>0.00 (Mismatched)</span>
+                  <span data-beginner="0.00 (Less like a match)" data-specialist="0.00 (Mismatched)">0.00 (Mismatched)</span>
                   <span class="scale-mid">Threshold: 0.50</span>
-                  <span>1.00 (Cognate)</span>
+                  <span data-beginner="1.00 (More like a match)" data-specialist="1.00 (Cognate)">1.00 (Cognate)</span>
                 </div>
               </div>
             </div>
@@ -399,7 +493,8 @@
                 Model prediction interpretation will appear here.
               </p>
               <div class="context-caveat-note">
-                <strong>Important:</strong> The model probability reflects relative similarity to native crystal pairing distributions in Test 3; it is <em>NOT</em> an experimental binding affinity ($K_D$ / $\Delta G$) nor a physical binding chance.
+                <strong data-beginner="Keep in mind:" data-specialist="Important:">Important:</strong>
+                <span data-beginner="This computer score is not a lab measurement and does not prove that the proteins will bind." data-specialist="The model probability reflects relative similarity to native crystal pairing distributions in Test 3; it is NOT an experimental binding affinity (KD / ΔG) nor a physical binding chance.">The model probability reflects relative similarity to native crystal pairing distributions in Test 3; it is <em>NOT</em> an experimental binding affinity ($K_D$ / $\Delta G$) nor a physical binding chance.</span>
               </div>
             </div>
           </div>
@@ -541,6 +636,50 @@
             </div>
           </section>
         </div>
+
+        <!-- 3D molecular structure viewer shared by both experiences -->
+        <section id="section-molecule" class="result-card molecule-viewer-card">
+          <div class="card-title-bar">
+            <div class="title-with-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="7" cy="7" r="3"></circle>
+                <circle cx="17" cy="7" r="3"></circle>
+                <circle cx="12" cy="17" r="3"></circle>
+                <path d="m9.5 8.5 1.5 6m3.5-6-1.5 6M10 7h4"></path>
+              </svg>
+              <h3 class="panel-section-title" data-beginner="Explore the 3D protein structure" data-specialist="Interactive 3D Molecular Structure">Interactive 3D Molecular Structure</h3>
+            </div>
+            <span id="molecule-viewer-status" class="panel-tag" role="status">Analyze a structure to load its 3D model</span>
+          </div>
+          <div class="molecule-viewer-toolbar" role="group" aria-label="Molecule display controls">
+            <div class="molecule-style-controls">
+              <span class="molecule-control-label">Display</span>
+              <button type="button" class="molecule-style-button active" data-view-style="cartoon" aria-pressed="true">Cartoon</button>
+              <button type="button" class="molecule-style-button" data-view-style="stick" aria-pressed="false">Sticks</button>
+              <button type="button" class="molecule-style-button" data-view-style="line" aria-pressed="false">Lines</button>
+            </div>
+            <div class="molecule-action-controls">
+              <button type="button" id="molecule-spin-toggle" class="molecule-action-button" aria-pressed="false">Start rotation</button>
+              <button type="button" id="molecule-reset-view" class="molecule-action-button">Reset view</button>
+            </div>
+          </div>
+          <div class="molecule-viewer-layout">
+            <div id="molecule-viewer" class="molecule-viewer-canvas" role="img" aria-label="Three-dimensional molecular structure viewer">
+              <div id="molecule-viewer-placeholder" class="molecule-viewer-placeholder">
+                <span class="viewer-placeholder-icon" aria-hidden="true">◉</span>
+                <strong>3D structure preview</strong>
+                <span>Run an analysis to view the antibody and antigen chains.</span>
+              </div>
+            </div>
+            <aside class="molecule-viewer-legend" aria-label="Molecule color legend">
+              <h4>Chain guide</h4>
+              <div><span class="molecule-legend-dot antibody-dot"></span><span>Antibody (heavy / light)</span></div>
+              <div><span class="molecule-legend-dot antigen-dot"></span><span>Antigen target</span></div>
+              <p id="molecule-chain-summary">Chain identities will appear here after analysis.</p>
+              <a id="molecule-download-link" class="molecule-download-link" href="#" target="_blank" rel="noopener noreferrer" hidden>Open structure at RCSB PDB ↗</a>
+            </aside>
+          </div>
+        </section>
 
         <!-- 3. INTERACTION MATRIX — MAJOR SCIENTIFIC VISUAL -->
         <section id="section-matrix" class="result-card interaction-matrix-card">
@@ -808,6 +947,7 @@
     </footer>
   </div>
 
-  <script src="app.js"></script>
+  <script src="https://3dmol.org/build/3Dmol-min.js" defer></script>
+  <script src="app.js" defer></script>
 </body>
 </html>

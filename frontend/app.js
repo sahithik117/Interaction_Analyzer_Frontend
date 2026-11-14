@@ -54,6 +54,18 @@
   const resultsContainer = document.getElementById("results-container");
   const backendStatus = document.getElementById("backend-status");
   const backendStatusText = document.getElementById("backend-status-text");
+  const experienceDialog = document.getElementById("experience-dialog");
+  const experienceSwitch = document.getElementById("experience-switch");
+  const experienceCurrent = document.getElementById("experience-current");
+  const experienceClose = document.getElementById("experience-close");
+  const experienceContinue = document.getElementById("experience-continue");
+  const moleculeViewerContainer = document.getElementById("molecule-viewer");
+  const moleculeViewerStatus = document.getElementById("molecule-viewer-status");
+  const moleculeChainSummary = document.getElementById("molecule-chain-summary");
+  const moleculePlaceholder = document.getElementById("molecule-viewer-placeholder");
+  const moleculeDownloadLink = document.getElementById("molecule-download-link");
+  const moleculeSpinToggle = document.getElementById("molecule-spin-toggle");
+  const moleculeResetView = document.getElementById("molecule-reset-view");
 
   // Canvas & Matrix Elements
   const canvas = document.getElementById("matrix-canvas");
@@ -64,6 +76,163 @@
   let currentMatrix = null;
   let hoveredCell = null;
   let stageTimer = null;
+  let currentExperience = "specialist";
+  let lastFocusedElement = null;
+  let moleculeViewer = null;
+  let moleculeChains = { antibody: [], antigen: [] };
+  let moleculeStyle = "cartoon";
+  let moleculeRequestId = 0;
+  let moleculeIsSpinning = false;
+
+  function readSavedExperience() {
+    try {
+      const saved = window.localStorage.getItem("interactionAnalyzerExperience");
+      return saved === "beginner" || saved === "specialist" ? saved : null;
+    } catch (error) {
+      console.warn("Could not read the saved experience preference:", error);
+      return null;
+    }
+  }
+
+  function saveExperience(experience) {
+    try {
+      window.localStorage.setItem("interactionAnalyzerExperience", experience);
+    } catch (error) {
+      console.warn("Could not save the experience preference:", error);
+    }
+  }
+
+  function applyExperience(experience) {
+    currentExperience = experience === "beginner" ? "beginner" : "specialist";
+    document.body.dataset.experience = currentExperience;
+
+    document.querySelectorAll("[data-beginner][data-specialist]").forEach(function (element) {
+      element.textContent = element.dataset[currentExperience];
+    });
+
+    if (experienceCurrent) {
+      experienceCurrent.textContent = currentExperience === "beginner" ? "Beginner" : "Specialist";
+    }
+
+    const predictionBadge = document.getElementById("res-prediction-badge");
+    if (predictionBadge && predictionBadge.dataset.predictedClass !== undefined) {
+      const isCognate = predictionBadge.dataset.predictedClass === "1";
+      predictionBadge.textContent = currentExperience === "beginner"
+        ? (isCognate ? "Likely match" : "Possible mismatch")
+        : (isCognate ? "COGNATE PAIR (Class 1)" : "MISMATCHED PAIR (Class 0)");
+    }
+
+    const interpretation = document.getElementById("res-interpretation-text");
+    if (interpretation && interpretation.dataset.modelInterpretation) {
+      interpretation.textContent = currentExperience === "beginner"
+        ? "This is a computer-model score based on structural patterns, not a measured chance that the proteins will bind. " + interpretation.dataset.modelInterpretation
+        : interpretation.dataset.modelInterpretation;
+    }
+  }
+
+  function updateModeInUrl(experience) {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("experience");
+    url.searchParams.set("mode", experience);
+    window.history.replaceState(null, "", url);
+  }
+
+  function openExperienceDialog() {
+    if (!experienceDialog) return;
+    lastFocusedElement = document.activeElement === document.body && experienceSwitch
+      ? experienceSwitch
+      : document.activeElement;
+    experienceDialog.hidden = false;
+    document.body.style.overflow = "hidden";
+    const firstChoice = experienceDialog.querySelector("[data-experience]");
+    if (firstChoice) firstChoice.focus();
+  }
+
+  function closeExperienceDialog() {
+    if (!experienceDialog) return;
+    experienceDialog.hidden = true;
+    document.body.style.overflow = "";
+    if (lastFocusedElement && typeof lastFocusedElement.focus === "function") {
+      lastFocusedElement.focus();
+    }
+  }
+
+  function chooseExperience(experience) {
+    applyExperience(experience);
+    saveExperience(currentExperience);
+    updateModeInUrl(currentExperience);
+    closeExperienceDialog();
+  }
+
+  function initializeExperience() {
+    const requested = new URLSearchParams(window.location.search).get("mode");
+    const saved = readSavedExperience();
+    const requestedExperience = requested === "beginner" || requested === "specialist"
+      ? requested
+      : null;
+
+    applyExperience(requestedExperience || saved || "specialist");
+    if (requestedExperience) saveExperience(requestedExperience);
+
+    if (experienceDialog) {
+      if (requestedExperience) {
+        experienceDialog.hidden = true;
+      } else {
+        openExperienceDialog();
+      }
+
+      experienceDialog.querySelectorAll("[data-experience]").forEach(function (button) {
+        button.addEventListener("click", function () {
+          chooseExperience(button.dataset.experience);
+        });
+      });
+    }
+
+    if (experienceSwitch) {
+      experienceSwitch.addEventListener("click", openExperienceDialog);
+    }
+    if (experienceClose) {
+      experienceClose.addEventListener("click", function () {
+        saveExperience(currentExperience);
+        updateModeInUrl(currentExperience);
+        closeExperienceDialog();
+      });
+    }
+    if (experienceContinue) {
+      experienceContinue.addEventListener("click", function () {
+        saveExperience(currentExperience);
+        updateModeInUrl(currentExperience);
+        closeExperienceDialog();
+      });
+    }
+    document.addEventListener("keydown", function (event) {
+      if (!experienceDialog || experienceDialog.hidden) return;
+
+      if (event.key === "Escape") {
+        saveExperience(currentExperience);
+        updateModeInUrl(currentExperience);
+        closeExperienceDialog();
+        return;
+      }
+
+      if (event.key === "Tab") {
+        const focusable = Array.from(experienceDialog.querySelectorAll(
+          "button:not([disabled]), a[href]"
+        ));
+        if (!focusable.length) return;
+
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    });
+  }
 
   /**
    * Health Check: queries GET /api/health to confirm backend availability.
@@ -151,6 +320,7 @@
     }
 
     if (errorDetail) errorDetail.textContent = friendlyDetail;
+    stopMoleculeRotation();
     if (resultsContainer) resultsContainer.style.display = "none";
     if (preAnalysisPanel) preAnalysisPanel.style.display = "none";
     if (loadingPanel) loadingPanel.style.display = "none";
@@ -223,6 +393,178 @@
     }
   }
 
+  function setMoleculeStatus(message) {
+    if (moleculeViewerStatus) moleculeViewerStatus.textContent = message;
+  }
+
+  function setMoleculePlaceholder(heading, detail) {
+    if (!moleculePlaceholder) return;
+    moleculePlaceholder.style.display = "flex";
+    const strong = moleculePlaceholder.querySelector("strong");
+    const description = moleculePlaceholder.querySelector("span:last-child");
+    if (strong) strong.textContent = heading;
+    if (description) description.textContent = detail;
+  }
+
+  function stopMoleculeRotation() {
+    if (moleculeViewer && moleculeIsSpinning) moleculeViewer.spin(false);
+    moleculeIsSpinning = false;
+    if (moleculeSpinToggle) {
+      moleculeSpinToggle.textContent = "Start rotation";
+      moleculeSpinToggle.setAttribute("aria-pressed", "false");
+    }
+  }
+
+  function applyMoleculeStyle() {
+    if (!moleculeViewer) return;
+
+    let style;
+    if (moleculeStyle === "cartoon") {
+      style = { cartoon: { color: "#64748b" } };
+    } else if (moleculeStyle === "stick") {
+      style = { stick: { radius: 0.16, colorscheme: "Jmol" } };
+    } else {
+      style = { line: { colorscheme: "Jmol" } };
+    }
+
+    moleculeViewer.setStyle({}, style);
+    [moleculeChains.antibody, moleculeChains.antigen].forEach(function (chains, groupIndex) {
+      const color = groupIndex === 0 ? "#ef4444" : "#fbbf24";
+      chains.forEach(function (chain) {
+        const selection = { chain: chain };
+        let chainStyle;
+        if (moleculeStyle === "cartoon") {
+          chainStyle = { cartoon: { color: color } };
+        } else if (moleculeStyle === "stick") {
+          chainStyle = { stick: { color: color, radius: 0.16 } };
+        } else {
+          chainStyle = { line: { color: color } };
+        }
+        moleculeViewer.setStyle(selection, chainStyle);
+      });
+    });
+
+    moleculeViewer.render();
+  }
+
+  async function loadMolecule(data) {
+    const requestId = ++moleculeRequestId;
+    const pdbId = String(data.pdb_id || "").trim().toUpperCase();
+    const structure = data.structure || {};
+    moleculeChains = {
+      antibody: [...(structure.antibody_heavy_chains || []), ...(structure.antibody_light_chains || [])],
+      antigen: structure.antigen_chains || [],
+    };
+
+    if (moleculeChainSummary) {
+      const antibodyText = moleculeChains.antibody.length ? moleculeChains.antibody.join(", ") : "not identified";
+      const antigenText = moleculeChains.antigen.length ? moleculeChains.antigen.join(", ") : "not identified";
+      moleculeChainSummary.textContent = `Antibody: ${antibodyText} · Target: ${antigenText}`;
+    }
+
+    if (moleculeDownloadLink) {
+      moleculeDownloadLink.href = `https://www.rcsb.org/structure/${encodeURIComponent(pdbId)}`;
+      moleculeDownloadLink.hidden = false;
+    }
+
+    setMoleculeStatus(`Loading ${pdbId} from RCSB PDB…`);
+    if (moleculePlaceholder) {
+      moleculePlaceholder.style.display = "none";
+    }
+
+    if (!window.$3Dmol || !moleculeViewerContainer) {
+      setMoleculeStatus("3D viewer unavailable");
+      setMoleculePlaceholder("3D viewer unavailable", "Use the RCSB link to inspect this structure.");
+      return;
+    }
+
+    await new Promise(function (resolve) {
+      window.requestAnimationFrame(resolve);
+    });
+    if (requestId !== moleculeRequestId) return;
+
+    try {
+      if (!moleculeViewer) {
+        moleculeViewer = window.$3Dmol.createViewer(moleculeViewerContainer, {
+          backgroundColor: "#050d18",
+          antialias: true,
+        });
+      } else {
+        stopMoleculeRotation();
+        moleculeViewer.clear();
+      }
+      moleculeViewer.resize();
+
+      stopMoleculeRotation();
+
+      const response = await fetch(`https://files.rcsb.org/download/${encodeURIComponent(pdbId)}.pdb`);
+      if (!response.ok) {
+        throw new Error(`RCSB returned HTTP ${response.status}`);
+      }
+      const pdbText = await response.text();
+      if (!/^(ATOM  |HETATM)/m.test(pdbText)) {
+        throw new Error("The PDB file contained no atomic coordinates");
+      }
+      if (requestId !== moleculeRequestId) return;
+
+      moleculeViewer.addModel(pdbText, "pdb");
+      applyMoleculeStyle();
+      moleculeViewer.zoomTo();
+      moleculeViewer.render();
+      setMoleculeStatus(`${pdbId} · ${moleculeChains.antibody.length + moleculeChains.antigen.length} chains highlighted`);
+
+      if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        moleculeViewer.spin("y", 0.5);
+        moleculeIsSpinning = true;
+        if (moleculeSpinToggle) {
+          moleculeSpinToggle.textContent = "Stop rotation";
+          moleculeSpinToggle.setAttribute("aria-pressed", "true");
+        }
+      }
+    } catch (error) {
+      if (requestId !== moleculeRequestId) return;
+      console.error("Could not load the 3D molecular structure:", error);
+      setMoleculeStatus("3D structure unavailable");
+      setMoleculePlaceholder("3D structure unavailable", error.message || "Check your network connection and try again.");
+    }
+  }
+
+  function initializeMoleculeControls() {
+    document.querySelectorAll(".molecule-style-button").forEach(function (button) {
+      button.addEventListener("click", function () {
+        moleculeStyle = button.dataset.viewStyle;
+        document.querySelectorAll(".molecule-style-button").forEach(function (option) {
+          const isActive = option === button;
+          option.classList.toggle("active", isActive);
+          option.setAttribute("aria-pressed", String(isActive));
+        });
+        applyMoleculeStyle();
+      });
+    });
+
+    if (moleculeSpinToggle) {
+      moleculeSpinToggle.addEventListener("click", function () {
+        if (!moleculeViewer) return;
+        moleculeIsSpinning = !moleculeIsSpinning;
+        if (moleculeIsSpinning) {
+          moleculeViewer.spin("y", 0.5);
+        } else {
+          moleculeViewer.spin(false);
+        }
+        moleculeSpinToggle.textContent = moleculeIsSpinning ? "Stop rotation" : "Start rotation";
+        moleculeSpinToggle.setAttribute("aria-pressed", String(moleculeIsSpinning));
+      });
+    }
+
+    if (moleculeResetView) {
+      moleculeResetView.addEventListener("click", function () {
+        if (!moleculeViewer) return;
+        moleculeViewer.zoomTo();
+        moleculeViewer.render();
+      });
+    }
+  }
+
   /**
    * Primary Analysis Pipeline: calls POST /api/predict
    */
@@ -254,10 +596,6 @@
 
       const data = await response.json();
 
-      if (loadingPdbTarget) {
-        loadingPdbTarget.textContent = `${cleanPdb} · 10k dataset target`;
-      }
-
       if (!response.ok) {
         const errDetail = data.detail || {};
         const errType = typeof errDetail === "object" ? errDetail.error_type : "HttpError";
@@ -288,6 +626,7 @@
         analyzeBtn.classList.add("loading");
       }
       if (loadingPanel) loadingPanel.style.display = "block";
+      stopMoleculeRotation();
       if (resultsContainer) resultsContainer.style.display = "none";
       if (preAnalysisPanel) preAnalysisPanel.style.display = "none";
       startStagedLoading(cleanPdb);
@@ -334,18 +673,26 @@
     const predBadge = document.getElementById("res-prediction-badge");
     if (predBadge) {
       predBadge.className = "prediction-classification-badge";
+      predBadge.dataset.predictedClass = String(predClass);
       if (predClass === 1) {
-        predBadge.textContent = "COGNATE PAIR (Class 1)";
+        predBadge.textContent = currentExperience === "beginner"
+          ? "Likely match"
+          : "COGNATE PAIR (Class 1)";
         predBadge.classList.add("badge-cognate");
       } else {
-        predBadge.textContent = "MISMATCHED PAIR (Class 0)";
+        predBadge.textContent = currentExperience === "beginner"
+          ? "Possible mismatch"
+          : "MISMATCHED PAIR (Class 0)";
         predBadge.classList.add("badge-mismatched");
       }
     }
 
     const resInterp = document.getElementById("res-interpretation-text");
     if (resInterp) {
-      resInterp.textContent = data.prediction.interpretation || "No interpretation provided.";
+      resInterp.dataset.modelInterpretation = data.prediction.interpretation || "No interpretation provided.";
+      resInterp.textContent = currentExperience === "beginner"
+        ? "This is a computer-model score based on structural patterns, not a measured chance that the proteins will bind. " + resInterp.dataset.modelInterpretation
+        : resInterp.dataset.modelInterpretation;
     }
 
     // 2. Macromolecular Entities
@@ -417,6 +764,8 @@
       resultsContainer.style.display = "block";
       resultsContainer.scrollIntoView({ behavior: "smooth", block: "start" });
     }
+
+    loadMolecule(data);
   }
 
   /**
@@ -664,6 +1013,8 @@
   }
 
   // Initial Startup Check
+  initializeExperience();
+  initializeMoleculeControls();
   checkBackendHealth();
 
 })();
